@@ -49,7 +49,7 @@ cEnumToDimension ptr = do
 cLocaleToLocale :: Ptr Locale -> IO Locale
 cLocaleToLocale ptr = do
   lang <- cLangToLang (castPtr ptr)
-  let region_ptr = castPtr ptr `plusPtr` 8
+  let region_ptr = castPtr ptr `plusPtr` _CINT_SIZE
   if region_ptr == nullPtr
   then pure $ makeLocale lang Nothing
   else do
@@ -67,7 +67,10 @@ cDimensionsToDimensions ptr = go (castPtr ptr) []
       then pure dims
       else do
         dim <- cEnumToDimension p
-        go (p `plusPtr` 8) (dim : dims)
+        go (p `plusPtr` _CINT_SIZE) (dim : dims)
+
+_CINT_SIZE :: Int
+_CINT_SIZE = sizeOf (undefined :: CInt)
 
 {-
 foreign export ccall run :: ()
